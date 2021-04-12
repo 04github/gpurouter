@@ -1,0 +1,1 @@
+nvcc main.cu mazeRouter.cpp gpuRouter.cu -o executable -std=c++11 -O2 && ./executable < benchmarks/$1.txt
