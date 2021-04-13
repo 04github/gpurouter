@@ -3,10 +3,11 @@
 __managed__ int success;
 __managed__ int extraTurns;
 __managed__ int N;
-const int maxTurns = 100, ExtraTurns = 0;
+const int maxTurns = 200, ExtraTurns = 0;
 const int ThreadsPerBlock = 1 << 10;
 __device__ const int dx[] = {-1, 0, 0, 1};
 __device__ const int dy[] = {0, -1, 1, 0};
+int totTurns, cntTurns;
 
 __global__ void ShortestPathLR(int *s, int *c) {
     __shared__ int Lc[ThreadsPerBlock], Rc[ThreadsPerBlock], LRs[ThreadsPerBlock];
@@ -89,6 +90,7 @@ pair<int, int> Route(const vector<vector<int>> &cost, const int N, const vector<
     cudaMemcpy(cudaPins, copyTemp, n * sizeof(int), cudaMemcpyHostToDevice);
     
     auto computeClocks = clock();
+    totTurns = cntTurns = 0;
     Init<<<N, N>>> (cudaRes, pins[0].first * N + pins[0].second);
     cudaDeviceSynchronize();
     for(int i = 1; i < n; i++) {
@@ -100,12 +102,16 @@ pair<int, int> Route(const vector<vector<int>> &cost, const int N, const vector<
             ShortestPathUD<<<N, N>>> (cudaMap, cudaCost);
             Check<<<1, 1>>> (cudaRes, cudaMap, cudaCost, cudaPins, n);
             cudaDeviceSynchronize();
+            totTurns++;
             if(success) break;
         }
+        cntTurns++;
         if(!success) break;
     }
     
     computeClocks = clock() - computeClocks;
+    
+    cerr << "average turns: " << 1.0 * totTurns / cntTurns << endl;
     
     cudaMemcpy(copyTemp, cudaRes, N * N * sizeof(int), cudaMemcpyDeviceToHost);
     res.clear();

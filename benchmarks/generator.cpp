@@ -13,7 +13,7 @@ int main() {
 
     srand(time(NULL));
     
-    const int N = 1 << 5, maxCost = 1000, numBlockages = 3, numPins = 5;
+    const int N = 1 << 5, maxCost = 1000, numBlockages = 2, numPins = 3;
     vector<vector<int>> mp(N, vector<int> (N));
     set<pair<int, int>> used;
     

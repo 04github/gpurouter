@@ -32,6 +32,21 @@ int main() {
         cpuwl += cost[e.first][e.second];
     cerr << gpuwl << ' ' << cpuwl << ' ' << gputime.second << ' ' << cputime.second << ' ' << gputime.first << ' ' << cputime.first << endl;
     
+    cout << N << endl;
+    for(int i = 0; i < N; i++) {
+        for(int j = 0; j < N; j++)
+            cout << (cost[i][j] == INF ? -1 : cost[i][j]) << ' ';
+        cout << endl;
+    }
+    cout << NumPins << endl;
+    for(auto e : pins)
+        cout << e.first << ' ' << e.second << endl;
+    cout << gpures.size() << endl;
+    for(auto e : gpures)
+        cout << e.first << ' ' << e.second << endl;
+    cout << cpures.size() << endl;
+    for(auto e : cpures)
+        cout << e.first << ' ' << e.second << endl;
   
     return 0;
 }
