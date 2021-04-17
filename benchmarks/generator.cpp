@@ -13,14 +13,18 @@ int main() {
 
     srand(time(NULL));
     
-    const int N = 1 << 5, maxCost = 1000, numBlockages = 2, numPins = 3;
+    const int N = 1 << 10, maxCost = 1000, numBlockages = 5, numPins = 30;
     vector<vector<int>> mp(N, vector<int> (N));
     set<pair<int, int>> used;
     
     cout << N << endl;
     for(int i = 0; i < N; i++)
         for(int j = 0; j < N; j++) {
-            mp[i][j] = rand() % maxCost;
+            int d = rand() % 100 - 90;
+            if(d <= 0)
+                mp[i][j] = rand() % 3 + 1;
+            else
+                mp[i][j] = 3 + (1 << d);
             printf("%d%c", mp[i][j], " \n"[j + 1 == N]);
         }
     cout << numBlockages << endl;

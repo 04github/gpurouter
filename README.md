@@ -4,14 +4,7 @@
 
 ```bash
 $ ./run.sh <benchmark>
-$ output will be under folder 'output'
-```
-
-## Visualize
-
-```bash
-$ python3 visualizer.py <benchmark>
-$ output will be under folder 'output'
+$ output will be under the folder 'output', including a visualization pdf file
 ```
 
 ## Benchmarks

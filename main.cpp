@@ -2,6 +2,58 @@
 #include "gpuRouter.h"
 
 int N, NumBlks, NumPins;
+const int dx[] = {-1, 1, 0, 0};
+const int dy[] = {0, 0, -1, 1};
+
+void dfs(int x, int y, vector<vector<int>> &cost) {
+    if(cost[x][y] != -1) return;
+    cost[x][y] = 0;
+    for(int d = 0; d < 4; d++) {
+        int nx = x + dx[d], ny = y+ dy[d];
+        if(0 <= nx && nx < N && 0 <= ny && ny < N)
+            dfs(nx, ny, cost);
+    }
+}
+
+int evaluate(const vector<pair<int, int>> &res, vector<vector<int>> cost, const int N) {   
+    map<int, int> cnt;
+    const int turnCost = 50; 
+    int tot = 0;
+    for(auto e : res) {
+        assert(cost[e.first][e.second] != -1);
+        cnt[cost[e.first][e.second]]++;
+        tot += cost[e.first][e.second];
+        cost[e.first][e.second] = -1;
+    }
+    int turnCount = 0;
+    for(int i = 0; i < N; i++)
+        for(int j = 0; j < N; j++) if(cost[i][j] == -1) {
+            int test[2] = {0, 0};
+            for(int d = 0; d < 4; d++) {
+                int x = i + dx[d], y = j + dy[d];
+                test[d / 2] |= (0 <= x && x < N && 0 <= y && y < N && cost[x][y] == -1);
+            }
+            turnCount += test[0] && test[1];
+        }
+    dfs(res[0].first, res[0].second, cost);
+    tot += turnCount * turnCost;
+    for(auto e : res) 
+        if(cost[e.first][e.second] == -1) tot = -1;
+    cerr << "Path analysis------- " << endl;
+    cerr << "cost count sum percent(number) percent(length)" << endl;
+    for(auto e : cnt)
+        cerr << e.first << ' ' << e.second << ' ' << e.first * e.second << ' ' << e.second * 100.0 / res.size() << "% " << e.first * e.second * 100.0 / tot << "%" << endl;
+    cerr << "turn " << turnCount << ' ' << turnCost * turnCount << " N/A " << turnCost * turnCount * 100.0 / tot << "%" << endl;
+    cerr << "total N/A " << tot << endl;
+    cerr << "Path analysis^^^^^^^ " << endl;
+    return tot;
+}
+
+void output(vector<pair<int, int>> &res, const vector<vector<int>> &cost, const int N) {
+    sort(res.begin(), res.end());
+    for(auto e : res)
+        cerr << e.first << ' ' << e.second << "   " << cost[e.first][e.second] << endl;
+}
 
 int main() {
     
@@ -18,7 +70,6 @@ int main() {
             for(int b = y1; b <= y2; b++)
                 cost[a][b] = INF;
     }
-    int gpuwl = 0, cpuwl = 0;
     cin >> NumPins;
     vector<pair<int, int>> pins(NumPins), gpures, cpures;
     for(int i = 0; i < NumPins; i++)
@@ -26,11 +77,8 @@ int main() {
     MazeRouter mazeRouter;
     auto gputime = Route(cost, N, pins, gpures);
     auto cputime = mazeRouter.Route(cost, N, pins, cpures);
-    for(auto e : gpures)
-        gpuwl += cost[e.first][e.second];
-    for(auto e : cpures)
-        cpuwl += cost[e.first][e.second];
-    cerr << gpuwl << ' ' << cpuwl << ' ' << gputime.second << ' ' << cputime.second << ' ' << gputime.first << ' ' << cputime.first << endl;
+    cerr << evaluate(gpures, cost, N) << ' ' << evaluate(cpures, cost, N) << ' ' << 
+            gputime.second << ' ' << cputime.second << ' ' << gputime.first << ' ' << cputime.first << endl;
     
     cout << N << endl;
     for(int i = 0; i < N; i++) {
